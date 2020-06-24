@@ -279,24 +279,29 @@ open class RAMAnimatedTabBarController: UITabBarController {
             let orient = UIApplication.shared.statusBarOrientation
             
             for (index, var layoutAnchor) in self.arrBottomAnchor.enumerated() {
-                
-                layoutAnchor.isActive = false
-                
-                switch orient {
-                case .portrait:
-                    layoutAnchor = self.arrViews[index].bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor)
-                case .landscapeLeft,.landscapeRight :
-                    layoutAnchor = self.arrViews[index].bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.bottomAnchor)
-                default:
-                    print("Anything But Portrait")
+                if self.arrViews[index].superview != nil {
+                    layoutAnchor.isActive = false
+                    
+                    switch orient {
+                    case .portrait:
+                        layoutAnchor = self.arrViews[index].bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor)
+                    case .landscapeLeft,.landscapeRight :
+                        layoutAnchor = self.arrViews[index].bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.bottomAnchor)
+                    default:
+                        print("Anything But Portrait")
+                    }
+                    
+                    self.arrBottomAnchor[index] = layoutAnchor
+                    self.arrBottomAnchor[index].isActive = true
                 }
                 
-                self.arrBottomAnchor[index] = layoutAnchor
-                self.arrBottomAnchor[index].isActive = true
             }
             self.view.updateConstraints()
             
         }, completion: { (transitionCoordinatorContext) -> Void in
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+            self.setSelectIndex(from: self.selectedIndex, to: self.selectedIndex)
             //refresh view once rotation is completed not in will transition as it returns incorrect frame size.Refresh here
         })
         super.viewWillTransition(to: size, with: coordinator)
